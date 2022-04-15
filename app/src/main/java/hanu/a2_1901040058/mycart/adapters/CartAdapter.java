@@ -30,11 +30,13 @@ import hanu.a2_1901040058.mycart.db.ProductManager;
 import hanu.a2_1901040058.mycart.models.Product;
 
 public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartHolder> {
-    List<Product> productList;
+    List<Product> cartLines;
+    private CartActivity cartActivity;
+    ProductManager productManager;
 
-
-    public CartAdapter(List<Product> productList) {
-        this.productList = productList;
+    public CartAdapter(List<Product> cartLines, CartActivity cartActivity) {
+        this.cartLines = cartLines;
+        this.cartActivity = cartActivity;
     }
 
     @NonNull
@@ -46,89 +48,69 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartHolder> {
 
         View itemView = inflater.inflate(R.layout.item_cart, parent, false);
 
+
         return new CartHolder(itemView, context);
     }
 
     @Override
     public void onBindViewHolder(@NonNull CartHolder holder, int position) {
-        Product product = productList.get(position);
+        Product product = cartLines.get(position);
+
         holder.bind(product);
     }
 
     @Override
     public int getItemCount() {
-        return productList.size();
+        return cartLines.size();
     }
 
-    // view holder
-    protected class CartHolder extends RecyclerView.ViewHolder {
-        Context context;
+
+    public class CartHolder extends RecyclerView.ViewHolder {
         ImageView imgCart;
-        TextView tvName, tvPrice, tvQuantity, tvTotalOfEachProduct;
+        TextView tvName, tvPrice, tvNumberPr, tvTotalOfEachProduct;
         ImageButton btnInc, btnDec;
-        CartActivity activity;
-        ProductManager manager;
+        Context context;
 
         public CartHolder(@NonNull View itemView, Context context) {
             super(itemView);
-
             tvName = itemView.findViewById(R.id.tvName);
             tvPrice = itemView.findViewById(R.id.tvPrice);
-            tvQuantity = itemView.findViewById(R.id.tvQuantity);
+            tvNumberPr = itemView.findViewById(R.id.tvQuantity);
             tvTotalOfEachProduct = itemView.findViewById(R.id.tvTotalOfEachProduct);
             btnInc = itemView.findViewById(R.id.btnInc);
             btnDec = itemView.findViewById(R.id.btnDec);
             imgCart = itemView.findViewById(R.id.imgCart);
-            this.context = context;
-            activity = new CartActivity();
         }
 
         public void bind(Product product) {
-
-            ThumbnailDownloader task = new ThumbnailDownloader();
-            task.execute(product.getThumbnail());
-
             tvName.setText(product.getName());
-            tvPrice.setText(product.getUnitPrice() + "VND");
-            tvQuantity.setText(product.getQuantity() + "");
-            tvTotalOfEachProduct.setText(product.getTotalPrice() + "VND");
-
-            btnInc.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                     manager = ProductManager.getInstance(context);
-
-                    product.increaseQuantity();
-
-                    if (manager.updateQuantity(product)) {
-                        notifyDataSetChanged();
-                        activity.tvTotalPrice.setText(product.getTotalPrice() + "VND");
-                    }
-                }
-            });
+            tvNumberPr.setText(product.getQuantity() + "");
+            tvPrice.setText(product.getUnitPrice() + " VND");
+            tvTotalOfEachProduct.setText(product.getTotalPrice() + "\nVND");
 
             btnDec.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    manager = ProductManager.getInstance(context);
+                    productManager = ProductManager.getInstance(context);
                     if (product.getQuantity() == 1) {
                         int id = (int) product.getId();
                         dialogClick(id);
-                        AlertDialog.Builder alert = new AlertDialog.Builder(activity);
+                        AlertDialog.Builder alert = new AlertDialog.Builder(cartActivity);
                         alert.setTitle("Confirm");
-                        alert.setMessage("Do you want to delete this product?");
+                        alert.setMessage("Do you want to delete this product ?");
                         alert.setIcon(R.drawable.ic_baseline_remove_24);
+
 
                         alert.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                             boolean delete_pr = false;
 
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                productList.remove(product);
-                                delete_pr = manager.delete(id);
-                                Toast.makeText(activity, "Delete Successfully", Toast.LENGTH_SHORT).show();
+                                cartLines.remove(product);
+                                delete_pr = productManager.delete(id);
+                                Toast.makeText(cartActivity, "Delete Successfull", Toast.LENGTH_SHORT).show();
                                 notifyDataSetChanged();
-                                activity.tvTotalPrice.setText(manager.countPrice() + "VND");
+                                cartActivity.txtTotalPrice.setText(productManager.countPrice() + "VND");
                             }
                         });
                         alert.setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -141,17 +123,34 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartHolder> {
                         dialog.show();
                     } else {
                         product.decreaseQuantity();
-                        activity.tvTotalPrice.setText(manager.countPrice() + "VND");
+                        cartActivity.txtTotalPrice.setText(productManager.countPrice() + "VND");
+
                     }
                     notifyDataSetChanged();
                 }
             });
+
+            btnInc.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    productManager = ProductManager.getInstance(context);
+                    product.increaseQuantity();
+                    notifyDataSetChanged();
+                    cartActivity.txtTotalPrice.setText(productManager.countPrice() + "VND");
+
+                }
+            });
+
+            ThumbnailLoader task = new ThumbnailLoader();
+            task.execute(product.getThumbnail());
+
         }
 
         public void dialogClick(int position) {
+
         }
 
-        public class ThumbnailDownloader extends AsyncTask<String, Void, Bitmap> {
+        public class ThumbnailLoader extends AsyncTask<String, Void, Bitmap> {
             URL image_url;
             HttpURLConnection urlConnection;
 

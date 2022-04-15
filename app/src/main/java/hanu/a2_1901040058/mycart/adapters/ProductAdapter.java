@@ -21,109 +21,114 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 import hanu.a2_1901040058.mycart.R;
 import hanu.a2_1901040058.mycart.db.ProductManager;
 import hanu.a2_1901040058.mycart.models.Product;
 
-public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductHolder> {
-    List<Product> productList;
 
-    public ProductAdapter(List<Product> productList) {
-        this.productList = productList;
+public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.MyViewHolder> {
+    private Context context;
+    private List<Product> lstProduct;
+    private List<Product> listSearch;
+    ProductManager manager;
+
+    public ProductAdapter(Context context, List<Product> lstProduct) {
+        this.context = context;
+        this.lstProduct = lstProduct;
+        this.listSearch = new ArrayList<>(lstProduct);
     }
 
     @NonNull
     @Override
-    public ProductHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Context
-        Context context = parent.getContext();
-
-        // inflater
-        LayoutInflater inflater = LayoutInflater.from(context);
-
-        // inflate
-        View itemView = inflater.inflate(R.layout.item_product, parent, false);
-
-        return new ProductHolder(itemView, context);
+    public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view;
+        LayoutInflater layoutInflater = LayoutInflater.from(context);
+        view = layoutInflater.inflate(R.layout.item_product, parent, false);
+        return new MyViewHolder(view, context);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ProductHolder holder, int position) {
-        Product product = productList.get(position);
+    public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
+        Product product = lstProduct.get(position);
         holder.bind(product);
     }
 
     @Override
     public int getItemCount() {
-        return productList.size();
+        return lstProduct.size();
     }
 
-    // view holder
-    protected class ProductHolder extends RecyclerView.ViewHolder {
-        CardView cardView;
-        ImageView ivProduct;
-        TextView tvName, tvPrice;
+
+    public class MyViewHolder extends RecyclerView.ViewHolder {
+        CardView cardViewP;
+        ImageView imgProduct;
+        TextView txtvDesc, txtvPrice;
         ImageButton btnAdd;
         private Context context;
 
-        public ProductHolder(@NonNull View itemView, Context context) {
-            super(itemView);
 
-            cardView = itemView.findViewById(R.id.cardView);
-            ivProduct = itemView.findViewById(R.id.imgProduct);
-            tvName = itemView.findViewById(R.id.tvName);
-            tvPrice = itemView.findViewById(R.id.tvPrice);
+        public MyViewHolder(@NonNull View itemView, Context context) {
+            super(itemView);
+            cardViewP = itemView.findViewById(R.id.cardView);
+            imgProduct = itemView.findViewById(R.id.imgProduct);
+            txtvDesc = itemView.findViewById(R.id.tvName);
+            txtvPrice = itemView.findViewById(R.id.tvPrice);
             btnAdd = itemView.findViewById(R.id.btnAdd);
 
             this.context = context;
         }
 
         public void bind(Product product) {
-
-            // set text
-            tvName.setText(product.getName());
-            tvPrice.setText(product.getUnitPrice() + "VND");
-
-            // download image
-            ImageDownloader task = new ImageDownloader();
+            txtvDesc.setText(product.getName());
+            txtvPrice.setText(product.getUnitPrice() + " VND");
+            ImageLoader task = new ImageLoader();
             task.execute(product.getThumbnail());
 
-            // handle click add button
+
             btnAdd.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(View view) {
-                    ProductManager manager = ProductManager.getInstance(context);
-
+                public void onClick(View v) {
+                    manager = ProductManager.getInstance(context);
+                    boolean isAdded = false;
+                    boolean isUpdated = false;
                     Product productDb = manager.findProductById(product.getId());
-
                     if (productDb == null) {
                         product.increaseQuantity();
+                        isAdded = manager.addProduct(product);
                     } else {
                         productDb.increaseQuantity();
+                        isUpdated = manager.updateQuantity(productDb);
                     }
 
-                    if (manager.addProduct(product) || manager.updateQuantity(productDb)) {
+                    if (isAdded || isUpdated) {
                         Toast.makeText(context, "Add product successful", Toast.LENGTH_SHORT).show();
                     } else {
                         Toast.makeText(context, "Add fail", Toast.LENGTH_SHORT).show();
                     }
                 }
+
             });
         }
 
-        public class ImageDownloader extends AsyncTask<String, Void, Bitmap> {
+        public class ImageLoader extends AsyncTask<String, Void, Bitmap> {
+            URL image_url;
+            HttpURLConnection urlConnection;
+
+
             @Override
             protected Bitmap doInBackground(String... strings) {
                 try {
-                    URL url = new URL(strings[0]);
-                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                    connection.connect();
+                    image_url = new URL(strings[0]);
+                    urlConnection = (HttpURLConnection) image_url.openConnection();
+                    urlConnection.connect();
 
-                    InputStream is = connection.getInputStream();
+                    InputStream is = urlConnection.getInputStream();
                     Bitmap bitmap = BitmapFactory.decodeStream(is);
                     return bitmap;
+
                 } catch (MalformedURLException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
@@ -134,9 +139,8 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductH
 
             @Override
             protected void onPostExecute(Bitmap bitmap) {
-                ivProduct.setImageBitmap(bitmap);
+                imgProduct.setImageBitmap(bitmap);
             }
         }
-
     }
 }

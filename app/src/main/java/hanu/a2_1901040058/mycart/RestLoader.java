@@ -2,7 +2,6 @@ package hanu.a2_1901040058.mycart;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.util.Log;
 
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -23,74 +22,73 @@ import java.util.Scanner;
 import hanu.a2_1901040058.mycart.adapters.ProductAdapter;
 import hanu.a2_1901040058.mycart.models.Product;
 
-public class RestLoader extends AsyncTask<String, Void, String> {
-    List<Product> productList;
-    RecyclerView rvProducts;
-    Context context;
-    ProductAdapter productAdapter;
 
-    public RestLoader(RecyclerView rvProducts, Context context) {
-        this.productList = new ArrayList<>();
-        this.rvProducts = rvProducts;
+public class RestLoader extends AsyncTask<String, Void, String> {
+    URL url;
+    HttpURLConnection urlConnection;
+    ProductAdapter adapter;
+    Context context;
+    RecyclerView recyclerView;
+    List<Product> list;
+    public List<Product> listProduct(){
+        return list;
+    }
+    public RestLoader(Context context, RecyclerView recyclerView, List<Product> list) {
         this.context = context;
+        this.recyclerView = recyclerView;
+        this.list = new ArrayList<>();
     }
 
     @Override
     protected String doInBackground(String... strings) {
-        URL url;
-        HttpURLConnection urlConnection;
-
         try {
             url = new URL(strings[0]);
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.connect();
+            InputStream is = urlConnection.getInputStream();
 
-            InputStream inputStream = urlConnection.getInputStream();
-            Scanner sc = new Scanner(inputStream);
+            Scanner sc = new Scanner(is);
             StringBuilder result = new StringBuilder();
             String line;
-
-            while (sc.hasNextLine()) {
+            while(sc.hasNextLine()) {
                 line = sc.nextLine();
                 result.append(line);
             }
 
             return result.toString();
+
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         return null;
     }
 
     @Override
     protected void onPostExecute(String s) {
         super.onPostExecute(s);
-
-        if (s != null) {
+        if (s != null){
             try {
-                JSONArray root = new JSONArray(s);
-                for (int i = 0; i < root.length(); i++) {
-                    JSONObject productObject = root.getJSONObject(i);
-                    int id = productObject.getInt("id");
-                    String thumbnail = productObject.getString("thumbnail");
-                    String name = productObject.getString("name");
-                    int unitPrice = productObject.getInt("unitPrice");
+                JSONArray jsonArray = new JSONArray(s);
+                for (int i = 0; i < jsonArray.length(); i ++){
+                    JSONObject jsonProduct = jsonArray.getJSONObject(i);
 
-                    Product product = new Product(id, thumbnail, name, unitPrice);
-                    productList.add(product);
+                    int productId = jsonProduct.getInt("id");
+                    String productThumbnail = jsonProduct.getString("thumbnail");
+                    String productName = jsonProduct.getString("name");
+                    int productPrice = jsonProduct.getInt("unitPrice");
+                    Product product = new Product(productId, productThumbnail, productName, productPrice);
+                    list.add(product);
                 }
-
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
 
-        // adapter
-        productAdapter = new ProductAdapter(productList);
-        rvProducts.setAdapter(productAdapter);
-        rvProducts.setLayoutManager(new GridLayoutManager(context, 2));
+        adapter = new ProductAdapter(context, list);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new GridLayoutManager(context, 2));
+        recyclerView.setAdapter(adapter);
     }
 }
