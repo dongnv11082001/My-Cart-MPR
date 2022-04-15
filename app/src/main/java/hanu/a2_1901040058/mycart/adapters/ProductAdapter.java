@@ -30,42 +30,38 @@ import hanu.a2_1901040058.mycart.models.Product;
 
 
 public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.MyViewHolder> {
-    private Context context;
-    private List<Product> lstProduct;
-    private List<Product> listSearch;
+    private List<Product> productList;
     ProductManager manager;
 
-    public ProductAdapter(Context context, List<Product> lstProduct) {
-        this.context = context;
-        this.lstProduct = lstProduct;
-        this.listSearch = new ArrayList<>(lstProduct);
+    public ProductAdapter(List<Product> productList) {
+        this.productList = productList;
     }
 
     @NonNull
     @Override
     public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view;
+        Context context = parent.getContext();
         LayoutInflater layoutInflater = LayoutInflater.from(context);
-        view = layoutInflater.inflate(R.layout.item_product, parent, false);
-        return new MyViewHolder(view, context);
+        View itemView = layoutInflater.inflate(R.layout.item_product, parent, false);
+        return new MyViewHolder(itemView, context);
     }
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-        Product product = lstProduct.get(position);
+        Product product = productList.get(position);
         holder.bind(product);
     }
 
     @Override
     public int getItemCount() {
-        return lstProduct.size();
+        return productList.size();
     }
 
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
         CardView cardViewP;
         ImageView imgProduct;
-        TextView txtvDesc, txtvPrice;
+        TextView tvName, tvPrice;
         ImageButton btnAdd;
         private Context context;
 
@@ -74,16 +70,16 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.MyViewHo
             super(itemView);
             cardViewP = itemView.findViewById(R.id.cardView);
             imgProduct = itemView.findViewById(R.id.imgProduct);
-            txtvDesc = itemView.findViewById(R.id.tvName);
-            txtvPrice = itemView.findViewById(R.id.tvPrice);
+            tvName = itemView.findViewById(R.id.tvName);
+            tvPrice = itemView.findViewById(R.id.tvPrice);
             btnAdd = itemView.findViewById(R.id.btnAdd);
 
             this.context = context;
         }
 
         public void bind(Product product) {
-            txtvDesc.setText(product.getName());
-            txtvPrice.setText(product.getUnitPrice() + " VND");
+            tvName.setText(product.getName());
+            tvPrice.setText(product.getUnitPrice() + " VND");
             ImageLoader task = new ImageLoader();
             task.execute(product.getThumbnail());
 
@@ -94,35 +90,34 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.MyViewHo
                     manager = ProductManager.getInstance(context);
                     boolean isAdded = false;
                     boolean isUpdated = false;
-                    Product productDb = manager.findProductById(product.getId());
-                    if (productDb == null) {
+                    Product productDB = manager.findProductById(product.getId());
+                    if (productDB == null) {
                         product.increaseQuantity();
                         isAdded = manager.addProduct(product);
                     } else {
-                        productDb.increaseQuantity();
-                        isUpdated = manager.updateQuantity(productDb);
+                        productDB.increaseQuantity();
+                        isUpdated = manager.updateQuantity(productDB);
                     }
 
                     if (isAdded || isUpdated) {
-                        Toast.makeText(context, "Add product successful", Toast.LENGTH_SHORT).show();
+                        makeToast("Successful");
                     } else {
-                        Toast.makeText(context, "Add fail", Toast.LENGTH_SHORT).show();
+                        makeToast("Fail");
                     }
                 }
-
             });
         }
 
+        public void makeToast(String message) {
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+        }
+
         public class ImageLoader extends AsyncTask<String, Void, Bitmap> {
-            URL image_url;
-            HttpURLConnection urlConnection;
-
-
             @Override
             protected Bitmap doInBackground(String... strings) {
                 try {
-                    image_url = new URL(strings[0]);
-                    urlConnection = (HttpURLConnection) image_url.openConnection();
+                    URL url = new URL(strings[0]);
+                    HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                     urlConnection.connect();
 
                     InputStream is = urlConnection.getInputStream();

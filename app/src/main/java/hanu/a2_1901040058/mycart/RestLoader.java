@@ -24,33 +24,29 @@ import hanu.a2_1901040058.mycart.models.Product;
 
 
 public class RestLoader extends AsyncTask<String, Void, String> {
-    URL url;
-    HttpURLConnection urlConnection;
     ProductAdapter adapter;
     Context context;
-    RecyclerView recyclerView;
+    RecyclerView rvProducts;
     List<Product> list;
-    public List<Product> listProduct(){
-        return list;
-    }
-    public RestLoader(Context context, RecyclerView recyclerView, List<Product> list) {
+
+    public RestLoader(Context context, RecyclerView rvProducts, List<Product> list) {
         this.context = context;
-        this.recyclerView = recyclerView;
-        this.list = new ArrayList<>();
+        this.rvProducts = rvProducts;
+        this.list = list;
     }
 
     @Override
     protected String doInBackground(String... strings) {
         try {
-            url = new URL(strings[0]);
-            urlConnection = (HttpURLConnection) url.openConnection();
+            URL url = new URL(strings[0]);
+            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.connect();
             InputStream is = urlConnection.getInputStream();
 
             Scanner sc = new Scanner(is);
             StringBuilder result = new StringBuilder();
             String line;
-            while(sc.hasNextLine()) {
+            while (sc.hasNextLine()) {
                 line = sc.nextLine();
                 result.append(line);
             }
@@ -68,17 +64,19 @@ public class RestLoader extends AsyncTask<String, Void, String> {
     @Override
     protected void onPostExecute(String s) {
         super.onPostExecute(s);
-        if (s != null){
+        if (s != null) {
             try {
                 JSONArray jsonArray = new JSONArray(s);
-                for (int i = 0; i < jsonArray.length(); i ++){
+                for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject jsonProduct = jsonArray.getJSONObject(i);
 
                     int productId = jsonProduct.getInt("id");
                     String productThumbnail = jsonProduct.getString("thumbnail");
                     String productName = jsonProduct.getString("name");
                     int productPrice = jsonProduct.getInt("unitPrice");
+
                     Product product = new Product(productId, productThumbnail, productName, productPrice);
+
                     list.add(product);
                 }
             } catch (JSONException e) {
@@ -86,9 +84,9 @@ public class RestLoader extends AsyncTask<String, Void, String> {
             }
         }
 
-        adapter = new ProductAdapter(context, list);
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new GridLayoutManager(context, 2));
-        recyclerView.setAdapter(adapter);
+        adapter = new ProductAdapter(list);
+        rvProducts.setHasFixedSize(true);
+        rvProducts.setLayoutManager(new GridLayoutManager(context, 2));
+        rvProducts.setAdapter(adapter);
     }
 }

@@ -21,7 +21,7 @@ public class CartActivity extends AppCompatActivity implements View.OnClickListe
     ImageButton btnBack;
     RecyclerView rvCart;
     CartAdapter adapter;
-    List<Product> lstCart;
+    List<Product> productListCart;
     public TextView tvPrice, txtTotalPrice, tvEmpty;
     ProductManager manager;
 
@@ -29,42 +29,35 @@ public class CartActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cart);
-        mapping();
-        manager = ProductManager.getInstance(this);
-        lstCart = manager.getAllData();
-        int numberPr = lstCart.size();
-        check(numberPr);
-
-        txtTotalPrice.setText(manager.countPrice() + " VND");
-
-        btnBack.setOnClickListener(this);
-        rvCart.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new CartAdapter(lstCart, this);
-        rvCart.setAdapter(adapter);
-    }
-
-    private void mapping() {
         tvEmpty = findViewById(R.id.tvEmpty);
         rvCart = findViewById(R.id.rvCart);
         tvPrice = findViewById(R.id.tvPrice);
         btnBack = findViewById(R.id.btnBack);
         txtTotalPrice = findViewById(R.id.tvTotalPrice);
-    }
 
-    private void check(int number) {
-        if (number == 0) {
-            tvEmpty.setVisibility(View.VISIBLE);
-        } else {
+        manager = ProductManager.getInstance(this);
+        productListCart = manager.allProducts();
+
+        if (productListCart.size() > 0) {
             tvEmpty.setVisibility(View.INVISIBLE);
+        } else {
+            tvEmpty.setVisibility(View.VISIBLE);
         }
+
+        txtTotalPrice.setText(manager.countProduct() + " VND");
+
+        btnBack.setOnClickListener(this);
+        rvCart.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new CartAdapter(productListCart, this);
+        rvCart.setAdapter(adapter);
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btnBack:
-                Intent i = new Intent(CartActivity.this, MainActivity.class);
-                startActivity(i);
+                Intent intent = new Intent(CartActivity.this, MainActivity.class);
+                startActivity(intent);
                 break;
             default:
         }

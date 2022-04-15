@@ -49,7 +49,6 @@ public class ProductManager {
         }
 
         return false;
-
     }
 
     public boolean updateQuantity(Product product) {
@@ -62,10 +61,7 @@ public class ProductManager {
 
         int result = db.update(DBSchema.ProductTable.NAME, cv, DBSchema.ProductTable.Cols.COLUMN_ID + "= ?", new String[]{product.getId() + ""});
         return result > 0;
-
-
     }
-
 
     public Product findProductById(long id) {
         String sql = "SELECT * FROM " + DBSchema.ProductTable.NAME + " WHERE " + DBSchema.ProductTable.Cols.COLUMN_ID + " = ?";
@@ -76,9 +72,9 @@ public class ProductManager {
         return cursorWrapper.getProductByID();
     }
 
-    public List<Product> getAllData() {
-        String sql = "SELECT * FROM " + DBSchema.ProductTable.NAME;
-        Cursor cursor = db.rawQuery(sql, null);
+    public List<Product> allProducts() {
+        String query = "SELECT * FROM " + DBSchema.ProductTable.NAME;
+        Cursor cursor = db.rawQuery(query, null);
         ProductCursorWrapper cursorWrapper = new ProductCursorWrapper(cursor);
         return cursorWrapper.getProducts();
     }
@@ -90,9 +86,9 @@ public class ProductManager {
         return result > 0;
     }
 
-    public int countPrice() {
-        String sql = "SELECT SUM(" + DBSchema.ProductTable.Cols.COLUMN_QUANTITY + " * " + DBSchema.ProductTable.Cols.COLUMN_PRICE + ") AS total FROM " + DBSchema.ProductTable.NAME;
-        Cursor cursor = db.rawQuery(sql, null);
+    public int countProduct() {
+        String query = "SELECT SUM(" + DBSchema.ProductTable.Cols.COLUMN_QUANTITY + " * " + DBSchema.ProductTable.Cols.COLUMN_PRICE + ") AS total FROM " + DBSchema.ProductTable.NAME;
+        Cursor cursor = db.rawQuery(query, null);
 
         int total = 0;
         cursor.moveToFirst();
@@ -102,6 +98,4 @@ public class ProductManager {
         total = cursor.getInt(0);
         return total;
     }
-
-
 }

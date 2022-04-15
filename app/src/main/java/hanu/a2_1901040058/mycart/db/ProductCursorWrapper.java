@@ -9,11 +9,6 @@ import java.util.List;
 import hanu.a2_1901040058.mycart.models.Product;
 
 public class ProductCursorWrapper extends CursorWrapper {
-    /**
-     * Creates a cursor wrapper.
-     *
-     * @param cursor The underlying cursor to wrap.
-     */
     public ProductCursorWrapper(Cursor cursor) {
         super(cursor);
     }

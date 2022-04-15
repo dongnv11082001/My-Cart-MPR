@@ -30,12 +30,12 @@ import hanu.a2_1901040058.mycart.db.ProductManager;
 import hanu.a2_1901040058.mycart.models.Product;
 
 public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartHolder> {
-    List<Product> cartLines;
+    List<Product> productListCart;
     private CartActivity cartActivity;
     ProductManager productManager;
 
-    public CartAdapter(List<Product> cartLines, CartActivity cartActivity) {
-        this.cartLines = cartLines;
+    public CartAdapter(List<Product> productListCart, CartActivity cartActivity) {
+        this.productListCart = productListCart;
         this.cartActivity = cartActivity;
     }
 
@@ -54,16 +54,15 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull CartHolder holder, int position) {
-        Product product = cartLines.get(position);
+        Product product = productListCart.get(position);
 
         holder.bind(product);
     }
 
     @Override
     public int getItemCount() {
-        return cartLines.size();
+        return productListCart.size();
     }
-
 
     public class CartHolder extends RecyclerView.ViewHolder {
         ImageView imgCart;
@@ -94,24 +93,23 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartHolder> {
                     productManager = ProductManager.getInstance(context);
                     if (product.getQuantity() == 1) {
                         int id = (int) product.getId();
-                        dialogClick(id);
                         AlertDialog.Builder alert = new AlertDialog.Builder(cartActivity);
-                        alert.setTitle("Confirm");
-                        alert.setMessage("Do you want to delete this product ?");
-                        alert.setIcon(R.drawable.ic_baseline_remove_24);
+                        alert.setTitle("Confirm")
+                                .setMessage("Do you want to delete this product?")
+                                .setIcon(android.R.drawable.ic_delete)
+                                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        productListCart.remove(product);
+                                        boolean isDeleted = productManager.delete(id);
 
-                        alert.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                            boolean delete_pr = false;
-
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                cartLines.remove(product);
-                                delete_pr = productManager.delete(id);
-                                Toast.makeText(cartActivity, "Delete Successfully", Toast.LENGTH_SHORT).show();
-                                notifyDataSetChanged();
-                                cartActivity.txtTotalPrice.setText(productManager.countPrice() + "VND");
-                            }
-                        });
+                                        if (isDeleted) {
+                                            Toast.makeText(cartActivity, "Delete Successfully", Toast.LENGTH_SHORT).show();
+                                            notifyDataSetChanged();
+                                            cartActivity.txtTotalPrice.setText(productManager.countProduct() + "VND");
+                                        }
+                                    }
+                                });
 
                         alert.setNegativeButton("No", new DialogInterface.OnClickListener() {
                             @Override
@@ -121,16 +119,15 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartHolder> {
                         });
                         AlertDialog dialog = alert.create();
                         dialog.show();
+
                     } else {
                         product.decreaseQuantity();
-
                         boolean isUpdated = productManager.updateQuantity(product);
 
                         if (isUpdated) {
                             notifyDataSetChanged();
-                            cartActivity.txtTotalPrice.setText(productManager.countPrice() + "VND");
+                            cartActivity.txtTotalPrice.setText(productManager.countProduct() + "VND");
                         }
-
                     }
                     notifyDataSetChanged();
                 }
@@ -143,25 +140,18 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartHolder> {
                     product.increaseQuantity();
 
                     boolean isUpdated = productManager.updateQuantity(product);
-
                     if (isUpdated) {
                         notifyDataSetChanged();
-                        cartActivity.txtTotalPrice.setText(productManager.countPrice() + "VND");
+                        cartActivity.txtTotalPrice.setText(productManager.countProduct() + "VND");
                     }
-
                 }
             });
 
-            ThumbnailLoader task = new ThumbnailLoader();
+            ImageDownloader task = new ImageDownloader();
             task.execute(product.getThumbnail());
-
         }
 
-        public void dialogClick(int position) {
-
-        }
-
-        public class ThumbnailLoader extends AsyncTask<String, Void, Bitmap> {
+        public class ImageDownloader extends AsyncTask<String, Void, Bitmap> {
             URL image_url;
             HttpURLConnection urlConnection;
 
@@ -190,5 +180,4 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartHolder> {
             }
         }
     }
-
 }

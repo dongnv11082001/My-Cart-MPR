@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import hanu.a2_1901040058.mycart.adapters.ProductAdapter;
+import hanu.a2_1901040058.mycart.db.ProductManager;
 import hanu.a2_1901040058.mycart.models.Product;
 
 public class MainActivity extends AppCompatActivity {
@@ -29,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
     public List<Product> productList;
     public ProductAdapter productAdapter;
     RestLoader task;
+    ProductManager productManager;
     private String API_PRODUCT = "https://mpr-cart-api.herokuapp.com/products";
 
     @Override
@@ -39,6 +41,13 @@ public class MainActivity extends AppCompatActivity {
         btnSearch = findViewById(R.id.btnSearch);
         rvProducts = findViewById(R.id.rvProducts);
         searchBar = findViewById(R.id.edSearch);
+
+        productManager = new ProductManager(this);
+        productList = productManager.allProducts();
+
+        productAdapter = new ProductAdapter(productList);
+        rvProducts.setAdapter(productAdapter);
+        rvProducts.setLayoutManager(new GridLayoutManager(getApplicationContext(), 2));
 
         task = new RestLoader(this, rvProducts, productList);
         task.execute(API_PRODUCT);
@@ -52,17 +61,18 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 List<Product> searchProduct = new ArrayList<>();
-                for (int i = 0; i < task.listProduct().size(); i++) {
-                    Log.i("onTextChanged: ", task.listProduct().get(i).getName());
-                    if (task.listProduct().get(i).getName().toLowerCase().contains(String.valueOf(s))) {
-                        searchProduct.add(task.listProduct().get(i));
+
+                for (int i = 0; i < task.list.size(); i++) {
+                    Log.i("onTextChanged: ", task.list.get(i).getName());
+                    if (task.list.get(i).getName().toLowerCase().contains(String.valueOf(s))) {
+                        searchProduct.add(task.list.get(i));
                     }
                 }
 
                 adapter(searchProduct);
                 String.valueOf(s);
                 if (String.valueOf(s) == "") {
-                    adapter(task.listProduct());
+                    adapter(task.list);
                 }
             }
 
@@ -96,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void adapter(List<Product> list) {
-        productAdapter = new ProductAdapter(this, list);
+        productAdapter = new ProductAdapter(list);
         rvProducts.setAdapter(productAdapter);
         rvProducts.setLayoutManager(new GridLayoutManager(getApplicationContext(), 2));
     }
