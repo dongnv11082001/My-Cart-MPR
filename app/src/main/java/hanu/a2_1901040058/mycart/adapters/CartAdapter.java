@@ -100,7 +100,6 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartHolder> {
                         alert.setMessage("Do you want to delete this product ?");
                         alert.setIcon(R.drawable.ic_baseline_remove_24);
 
-
                         alert.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                             boolean delete_pr = false;
 
@@ -108,11 +107,12 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartHolder> {
                             public void onClick(DialogInterface dialog, int which) {
                                 cartLines.remove(product);
                                 delete_pr = productManager.delete(id);
-                                Toast.makeText(cartActivity, "Delete Successfull", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(cartActivity, "Delete Successfully", Toast.LENGTH_SHORT).show();
                                 notifyDataSetChanged();
                                 cartActivity.txtTotalPrice.setText(productManager.countPrice() + "VND");
                             }
                         });
+
                         alert.setNegativeButton("No", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -123,7 +123,13 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartHolder> {
                         dialog.show();
                     } else {
                         product.decreaseQuantity();
-                        cartActivity.txtTotalPrice.setText(productManager.countPrice() + "VND");
+
+                        boolean isUpdated = productManager.updateQuantity(product);
+
+                        if (isUpdated) {
+                            notifyDataSetChanged();
+                            cartActivity.txtTotalPrice.setText(productManager.countPrice() + "VND");
+                        }
 
                     }
                     notifyDataSetChanged();
@@ -132,11 +138,16 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartHolder> {
 
             btnInc.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(View v) {
+                public void onClick(View view) {
                     productManager = ProductManager.getInstance(context);
                     product.increaseQuantity();
-                    notifyDataSetChanged();
-                    cartActivity.txtTotalPrice.setText(productManager.countPrice() + "VND");
+
+                    boolean isUpdated = productManager.updateQuantity(product);
+
+                    if (isUpdated) {
+                        notifyDataSetChanged();
+                        cartActivity.txtTotalPrice.setText(productManager.countPrice() + "VND");
+                    }
 
                 }
             });
