@@ -79,6 +79,8 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartHolder> {
             btnInc = itemView.findViewById(R.id.btnInc);
             btnDec = itemView.findViewById(R.id.btnDec);
             imgCart = itemView.findViewById(R.id.imgCart);
+
+            this.context = context;
         }
 
         public void bind(Product product) {

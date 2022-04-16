@@ -24,13 +24,14 @@ import hanu.a2_1901040058.mycart.db.ProductManager;
 import hanu.a2_1901040058.mycart.models.Product;
 
 public class MainActivity extends AppCompatActivity {
+    RestLoader task;
     TextView searchBar;
-    RecyclerView rvProducts;
     ImageButton btnSearch;
+    RecyclerView rvProducts;
+    ProductManager productManager;
     public List<Product> productList;
     public ProductAdapter productAdapter;
-    RestLoader task;
-    ProductManager productManager;
+
     private String API_PRODUCT = "https://mpr-cart-api.herokuapp.com/products";
 
     @Override
@@ -62,17 +63,17 @@ public class MainActivity extends AppCompatActivity {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 List<Product> searchProduct = new ArrayList<>();
 
-                for (int i = 0; i < task.list.size(); i++) {
-                    Log.i("onTextChanged: ", task.list.get(i).getName());
-                    if (task.list.get(i).getName().toLowerCase().contains(String.valueOf(s))) {
-                        searchProduct.add(task.list.get(i));
+                for (int i = 0; i < task.productList.size(); i++) {
+                    Log.i("onTextChanged: ", task.productList.get(i).getName());
+                    if (task.productList.get(i).getName().toLowerCase().contains(String.valueOf(s))) {
+                        searchProduct.add(task.productList.get(i));
                     }
                 }
 
-                adapter(searchProduct);
+                setAdapter(searchProduct);
                 String.valueOf(s);
                 if (String.valueOf(s) == "") {
-                    adapter(task.list);
+                    setAdapter(task.productList);
                 }
             }
 
@@ -105,8 +106,8 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void adapter(List<Product> list) {
-        productAdapter = new ProductAdapter(list);
+    public void setAdapter(List<Product> productList) {
+        productAdapter = new ProductAdapter(productList);
         rvProducts.setAdapter(productAdapter);
         rvProducts.setLayoutManager(new GridLayoutManager(getApplicationContext(), 2));
     }

@@ -15,7 +15,6 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -27,12 +26,12 @@ public class RestLoader extends AsyncTask<String, Void, String> {
     ProductAdapter adapter;
     Context context;
     RecyclerView rvProducts;
-    List<Product> list;
+    List<Product> productList;
 
-    public RestLoader(Context context, RecyclerView rvProducts, List<Product> list) {
+    public RestLoader(Context context, RecyclerView rvProducts, List<Product> productList) {
         this.context = context;
         this.rvProducts = rvProducts;
-        this.list = list;
+        this.productList = productList;
     }
 
     @Override
@@ -77,14 +76,14 @@ public class RestLoader extends AsyncTask<String, Void, String> {
 
                     Product product = new Product(productId, productThumbnail, productName, productPrice);
 
-                    list.add(product);
+                    productList.add(product);
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
 
-        adapter = new ProductAdapter(list);
+        adapter = new ProductAdapter(productList);
         rvProducts.setHasFixedSize(true);
         rvProducts.setLayoutManager(new GridLayoutManager(context, 2));
         rvProducts.setAdapter(adapter);

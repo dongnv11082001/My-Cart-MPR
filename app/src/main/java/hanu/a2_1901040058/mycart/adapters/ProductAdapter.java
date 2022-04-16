@@ -59,7 +59,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.MyViewHo
 
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
-        CardView cardViewP;
+        CardView cardView;
         ImageView imgProduct;
         TextView tvName, tvPrice;
         ImageButton btnAdd;
@@ -68,7 +68,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.MyViewHo
 
         public MyViewHolder(@NonNull View itemView, Context context) {
             super(itemView);
-            cardViewP = itemView.findViewById(R.id.cardView);
+            cardView = itemView.findViewById(R.id.cardView);
             imgProduct = itemView.findViewById(R.id.imgProduct);
             tvName = itemView.findViewById(R.id.tvName);
             tvPrice = itemView.findViewById(R.id.tvPrice);
