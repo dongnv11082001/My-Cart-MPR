@@ -3,7 +3,7 @@
     <string name="title">MPR Store</string>
     <string name="search_text">Search</string>
     <string name="price_text">Price</string>
-    <string name="img_text">Image No</string>
+    <string name="name_text">Name</string>
     <string name="order_text">Order</string>
     <string name="total_price">Total Price</string>
     <string name="price">500000 VND</string>

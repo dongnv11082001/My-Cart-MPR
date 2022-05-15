@@ -29,7 +29,7 @@ import hanu.a2_1901040058.mycart.db.ProductManager;
 import hanu.a2_1901040058.mycart.models.Product;
 
 
-public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.MyViewHolder> {
+public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductViewHolder> {
     private List<Product> productList;
     ProductManager manager;
 
@@ -39,15 +39,15 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.MyViewHo
 
     @NonNull
     @Override
-    public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ProductViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         Context context = parent.getContext();
         LayoutInflater layoutInflater = LayoutInflater.from(context);
         View itemView = layoutInflater.inflate(R.layout.item_product, parent, false);
-        return new MyViewHolder(itemView, context);
+        return new ProductViewHolder(itemView, context);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ProductViewHolder holder, int position) {
         Product product = productList.get(position);
         holder.bind(product);
     }
@@ -57,18 +57,14 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.MyViewHo
         return productList.size();
     }
 
-
-    public class MyViewHolder extends RecyclerView.ViewHolder {
-        CardView cardView;
+    public class ProductViewHolder extends RecyclerView.ViewHolder {
         ImageView imgProduct;
         TextView tvName, tvPrice;
         ImageButton btnAdd;
         private Context context;
 
-
-        public MyViewHolder(@NonNull View itemView, Context context) {
+        public ProductViewHolder(@NonNull View itemView, Context context) {
             super(itemView);
-            cardView = itemView.findViewById(R.id.cardView);
             imgProduct = itemView.findViewById(R.id.imgProduct);
             tvName = itemView.findViewById(R.id.tvName);
             tvPrice = itemView.findViewById(R.id.tvPrice);
@@ -79,10 +75,9 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.MyViewHo
 
         public void bind(Product product) {
             tvName.setText(product.getName());
-            tvPrice.setText(product.getUnitPrice() + " VND");
+            tvPrice.setText("đ " + product.getUnitPrice());
             ImageLoader task = new ImageLoader();
             task.execute(product.getThumbnail());
-
 
             btnAdd.setOnClickListener(new View.OnClickListener() {
                 @Override

@@ -64,7 +64,6 @@ public class MainActivity extends AppCompatActivity {
                 List<Product> searchProduct = new ArrayList<>();
 
                 for (int i = 0; i < task.productList.size(); i++) {
-                    Log.i("onTextChanged: ", task.productList.get(i).getName());
                     if (task.productList.get(i).getName().toLowerCase().contains(String.valueOf(s))) {
                         searchProduct.add(task.productList.get(i));
                     }

@@ -44,7 +44,7 @@ public class CartActivity extends AppCompatActivity implements View.OnClickListe
             tvEmpty.setVisibility(View.VISIBLE);
         }
 
-        txtTotalPrice.setText(manager.countProduct() + " VND");
+        txtTotalPrice.setText("đ " + manager.countProduct());
 
         btnBack.setOnClickListener(this);
         rvCart.setLayoutManager(new LinearLayoutManager(this));

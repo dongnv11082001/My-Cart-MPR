@@ -27,12 +27,10 @@ public class DBHelper extends SQLiteOpenHelper {
                 + ");"
                 ;
         db.execSQL(sql);
-        Log.d("TAG", "DB table created");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        Log.w("Products", "Products: upgrading DB; dropping/recreating tables.");
         db.execSQL("DROP TABLE IF EXISTS "+ DBSchema.ProductTable.NAME);
 
         onCreate(db);

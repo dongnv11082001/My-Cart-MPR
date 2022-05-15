@@ -48,7 +48,6 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartHolder> {
 
         View itemView = inflater.inflate(R.layout.item_cart, parent, false);
 
-
         return new CartHolder(itemView, context);
     }
 
@@ -86,8 +85,8 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartHolder> {
         public void bind(Product product) {
             tvName.setText(product.getName());
             tvNumberPr.setText(product.getQuantity() + "");
-            tvPrice.setText(product.getUnitPrice() + " VND");
-            tvTotalOfEachProduct.setText(product.getTotalPrice() + "\nVND");
+            tvPrice.setText("đ " + product.getUnitPrice());
+            tvTotalOfEachProduct.setText(product.getTotalPrice() + "");
 
             btnDec.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -108,7 +107,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartHolder> {
                                         if (isDeleted) {
                                             Toast.makeText(cartActivity, "Delete Successfully", Toast.LENGTH_SHORT).show();
                                             notifyDataSetChanged();
-                                            cartActivity.txtTotalPrice.setText(productManager.countProduct() + "VND");
+                                            cartActivity.txtTotalPrice.setText("đ " + productManager.countProduct());
                                         }
                                     }
                                 });
@@ -128,7 +127,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartHolder> {
 
                         if (isUpdated) {
                             notifyDataSetChanged();
-                            cartActivity.txtTotalPrice.setText(productManager.countProduct() + "VND");
+                            cartActivity.txtTotalPrice.setText("đ " + productManager.countProduct());
                         }
                     }
                     notifyDataSetChanged();
@@ -144,7 +143,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartHolder> {
                     boolean isUpdated = productManager.updateQuantity(product);
                     if (isUpdated) {
                         notifyDataSetChanged();
-                        cartActivity.txtTotalPrice.setText(productManager.countProduct() + "VND");
+                        cartActivity.txtTotalPrice.setText("đ " + productManager.countProduct());
                     }
                 }
             });
