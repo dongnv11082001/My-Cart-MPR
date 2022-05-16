@@ -9,4 +9,5 @@
     <string name="price">500000 VND</string>
     <string name="empty_text">Your cart is empty</string>
     <string name="checkout">Check Out</string>
+    <string name="quantity">1</string>
 </resources>

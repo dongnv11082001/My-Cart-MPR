@@ -22,6 +22,7 @@
             android:layout_marginTop="16dp"
             android:text="@string/title"
             android:textSize="20sp"
+            android:textColor="@color/colorPrimaryDark"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -39,7 +40,7 @@
         android:hint="@string/search_text"
         android:paddingStart="8dp"
         android:textColor="@color/colorAccent"
-        android:textColorHint="#546E7A"
+        android:textColorHint="#000000"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
